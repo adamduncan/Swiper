@@ -72,7 +72,12 @@ var Dom7 = (function () {
             var classes = className.split(' ');
             for (var i = 0; i < classes.length; i++) {
                 for (var j = 0; j < this.length; j++) {
-                    this[j].classList.add(classes[i]);
+                    var el = this[j];
+                    if (el.classList) {
+                        el.classList.add(classes[i]);
+                    } else {
+                        el.className += ' ' + classes[i];
+                    }
                 }
             }
             return this;
@@ -81,20 +86,48 @@ var Dom7 = (function () {
             var classes = className.split(' ');
             for (var i = 0; i < classes.length; i++) {
                 for (var j = 0; j < this.length; j++) {
-                    this[j].classList.remove(classes[i]);
+                    var el = this[j];
+                    if (el.classList) {
+                        el.classList.remove(classes[i]);
+                    } else {
+                        el.className = el.className.replace(new RegExp('(^|\\b)' + classes[i].split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+                    }
                 }
             }
             return this;
         },
         hasClass: function (className) {
-            if (!this[0]) return false;
-            else return this[0].classList.contains(className);
+            var el = this[0];
+            if (!el) {
+                return false;
+            } else {
+                if (el.classList) {
+                    el.classList.contains(className);
+                } else {
+                    new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
+                }
+            }
         },
         toggleClass: function (className) {
             var classes = className.split(' ');
             for (var i = 0; i < classes.length; i++) {
                 for (var j = 0; j < this.length; j++) {
-                    this[j].classList.toggle(classes[i]);
+                    var el = this[j];
+                    if (el.classList) {
+                        el.classList.toggle(classes[i]);
+                    } else {
+                        var existingIndex = -1;
+                        for (var k = classes.length; k--;) {
+                            if (classes[k] === classes[k])
+                                existingIndex = k;
+                        }
+                        if (existingIndex >= 0) {
+                            classes.splice(existingIndex, 1);
+                        } else {
+                            classes.push(classes[k]);
+                        }
+                        el.className = classes.join(' ');
+                    }
                 }
             }
             return this;
